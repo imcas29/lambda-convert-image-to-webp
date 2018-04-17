@@ -1,13 +1,7 @@
-// dependencies
 var async = require('async');
 var AWS = require('aws-sdk');
 var sharp = require('sharp');
-var util = require('util');
 
-// constants
-var STORAGE_CLASS = 'REDUCED_REDUNDANCY';
-
-// get reference to S3 client 
 var s3 = new AWS.S3();
 
 var mimeTypes = {
@@ -23,7 +17,7 @@ exports.handler = function(event, context, callbackevent) {
     var srcKey    = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, " "));  
     var dstBucket = srcBucket;
     var n = srcKey.indexOf('.');
-    var dstKey = srcKey.substring(0, n != -1 ? n : key.length) + ".webp";
+    var dstKey = srcKey.split('.')[0] + ".webp";
     var typeMatch = srcKey.match(/\.([^.]*)$/);
     if (!typeMatch) {
         callback("Could not determine the image type.");
@@ -37,9 +31,6 @@ exports.handler = function(event, context, callbackevent) {
     if (!format) {
         context.succeed(); return;
     }
-    /*
-
-    */
     async.waterfall([
         function download(next) {
             s3.getObject({
@@ -47,16 +38,13 @@ exports.handler = function(event, context, callbackevent) {
                 Key: srcKey
             },
             next);
-            console.log(srcBucket+ "  "+srcKey+ "After");
         },
         function transform(response, next) {
-            console.log('transform');
             sharp(response.Body)
             .webp()
             .toBuffer(next);
         },
         function upload(data, info, next) {
-            console.log('put object');
             s3.putObject({
                 Bucket: dstBucket,
                 Key: dstKey,
@@ -65,9 +53,7 @@ exports.handler = function(event, context, callbackevent) {
             next);
         }
     ], function (err) {
-        console.log(err);
         if (err) {
-            console.log(err);
             console.error(
                 'Unable to convert ' + srcBucket + '/' + srcKey +
                 ' and upload to ' + dstBucket + '/' + dstKey +
@@ -79,7 +65,6 @@ exports.handler = function(event, context, callbackevent) {
                 ' and uploaded to ' + dstBucket + '/' + dstKey
             );
         }
-        console.log(dstBucket + '/' + dstKey);
         callback(null, "message");
     });
 };
