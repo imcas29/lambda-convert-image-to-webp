@@ -1,0 +1,21 @@
+{
+  "name": "convertimagetowebp",
+  "version": "1.0.0",
+  "description": "Convert JPEG and PNG to WebP when uploaded to S3 on Lambda",
+  "main": "index.js",
+  "dependencies": {
+    "async": "^2.6.0",
+    "aws-sdk": "^2.224.1",
+    "sharp": "^0.20.1",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webp"
+  ],
+  "author": "Bastien Ledon",
+  "license": "ISC"
+}
